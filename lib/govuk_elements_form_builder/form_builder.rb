@@ -115,7 +115,7 @@ module GovukElementsFormBuilder
     end
 
     def fieldset_legend attribute
-      legend = content_tag(:legend, class: 'heading-medium') do
+      legend = content_tag(:legend) do
         tags = [content_tag(
                   :span,
                   fieldset_text(attribute),
