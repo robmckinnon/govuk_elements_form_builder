@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'rails_helper'
 require 'spec_helper'
 
@@ -239,51 +240,159 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
   end
 
   describe '#radio_button_fieldset' do
+    let(:pretty_output) { HtmlBeautifier.beautify output }
+    let(:output) do
+      builder.radio_button_fieldset :location,
+                                    choices: [
+                                      :ni,
+                                      :isle_of_man_channel_islands,
+                                      :british_abroad
+                                    ]
+    end
+
+    it 'adds a legend' do
+      expect(pretty_output).to have_tag('div.form-group > fieldset') do |div|
+        expect(div).to have_tag('legend') do |legend|
+          with_text I18n.t 'helpers.fieldset.person.location'
+          expect(legend).to have_tag('span.form-hint') do
+            with_text I18n.t 'helpers.hint.person.location'
+          end
+        end
+      end
+    end
+
     it 'outputs radio buttons wrapped in labels' do
-      output = builder.radio_button_fieldset :location, choices: [:ni, :isle_of_man_channel_islands, :british_abroad]
-      expect_equal output, [
-        '<fieldset>',
-        '<legend class="heading-medium">',
-        'Where do you live?',
-        '<span class="form-hint">',
-        'Select from these options because you answered you do not reside in England, Wales, or Scotland',
-        '</span>',
-        '</legend>',
-        '<label class="block-label" for="person_location_ni">',
-        '<input type="radio" value="ni" name="person[location]" id="person_location_ni" />',
-        'Northern Ireland',
-        '</label>',
-        '<label class="block-label" for="person_location_isle_of_man_channel_islands">',
-        '<input type="radio" value="isle_of_man_channel_islands" name="person[location]" id="person_location_isle_of_man_channel_islands" />',
-        'Isle of Man or Channel Islands',
-        '</label>',
-        '<label class="block-label" for="person_location_british_abroad">',
-        '<input type="radio" value="british_abroad" name="person[location]" id="person_location_british_abroad" />',
-        'I am a British citizen living abroad',
-        '</label>',
-        '</fieldset>'
-      ]
+      expect(pretty_output).to have_tag('div.form-group > fieldset') do |div|
+        expect(div).to have_tag('label[for=person_location_ni].block-label') do |label|
+          with_text I18n.t 'helpers.label.person.location.ni'
+          expect(label).to have_tag('input', with: {
+                                      type: 'radio',
+                                      name: 'person[location]',
+                                      value: 'ni'
+                                    })
+        end
+        expect(div).to have_tag 'label.block-label', with: {
+                   for: 'person_location_isle_of_man_channel_islands'
+                 } do |label|
+          with_text I18n.t 'helpers.label.person.location.isle_of_man_channel_islands'
+          expect(label).to have_tag 'input', with: {
+                     id: 'person_location_isle_of_man_channel_islands',
+                     type: 'radio',
+                     name: 'person[location]',
+                     value: 'isle_of_man_channel_islands'
+                   }
+        end
+        expect(div).to have_tag 'label.block-label', with: {
+                   for: 'person_location_british_abroad'
+                 } do |label|
+          with_text I18n.t 'helpers.label.person.location.british_abroad'
+          expect(label).to have_tag 'input', with: {
+                     id: 'person_location_british_abroad',
+                     type: 'radio',
+                     name: 'person[location]',
+                     value: 'british_abroad'
+                   }
+        end
+      end
+      # expect_equal output, [
+      #   '<fieldset>',
+      #   '<legend class="heading-medium">',
+      #   'Where do you live?',
+      #   '<span class="form-hint">',
+      #   'Select from these options because you answered you do not reside in England, Wales, or Scotland',
+      #   '</span>',
+      #   '</legend>',
+      #   '<label class="block-label" for="person_location_ni">',
+      #   '<input type="radio" value="ni" name="person[location]" id="person_location_ni" />',
+      #   'Northern Ireland',
+      #   '</label>',
+      #   '<label class="block-label" for="person_location_isle_of_man_channel_islands">',
+      #   '<input type="radio" value="isle_of_man_channel_islands" name="person[location]" id="person_location_isle_of_man_channel_islands" />',
+      #   'Isle of Man or Channel Islands',
+      #   '</label>',
+      #   '<label class="block-label" for="person_location_british_abroad">',
+      #   '<input type="radio" value="british_abroad" name="person[location]" id="person_location_british_abroad" />',
+      #   'I am a British citizen living abroad',
+      #   '</label>',
+      #   '</fieldset>'
+      # ]
     end
 
-    it 'outputs yes/no choices when no choices specified, and adds "inline" class to fieldset when passed "inline: true"' do
-      output = builder.radio_button_fieldset :has_user_account, inline: true
-      expect_equal output, [
-        '<fieldset class="inline">',
-        '<legend class="heading-medium">',
-        'Do you already have a personal user account?',
-        '</legend>',
-        '<label class="block-label" for="person_has_user_account_yes">',
-        '<input type="radio" value="yes" name="person[has_user_account]" id="person_has_user_account_yes" />',
-        'Yes',
-        '</label>',
-        '<label class="block-label" for="person_has_user_account_no">',
-        '<input type="radio" value="no" name="person[has_user_account]" id="person_has_user_account_no" />',
-        'No',
-        '</label>',
-        '</fieldset>'
-      ]
+    context 'no choices passed in' do
+      let(:output) { builder.radio_button_fieldset :has_user_account }
+
+      it 'outputs yes/no choices' do
+        expect(output).to have_tag('div.form-group > fieldset') do |div|
+          expect(div).to have_tag('label.block-label', with: {
+                                    for: 'person_has_user_account_yes'
+                                  }) do |label|
+            expect(label).to have_tag('input', with: {
+                                        id: 'person_has_user_account_yes',
+                                        name: 'person[has_user_account]',
+                                        value: 'yes'
+                                      })
+          end
+        end
+      end
     end
 
+    context 'inline radio buttons' do
+      let(:output) do
+        builder.radio_button_fieldset :has_user_account, inline: true
+      end
+
+      it 'displays options inline' do
+        expect(output).to have_tag('div.form-group > fieldset.inline')
+      end
+    end
+      # expect_equal output, [
+      #   '<fieldset class="inline">',
+      #   '<legend class="heading-medium">',
+      #   'Do you already have a personal user account?',
+      #   '</legend>',
+      #   '<label class="block-label" for="person_has_user_account_yes">',
+      #   '<input type="radio" value="yes" name="person[has_user_account]" id="person_has_user_account_yes" />',
+      #   'Yes',
+      #   '</label>',
+      #   '<label class="block-label" for="person_has_user_account_no">',
+      #   '<input type="radio" value="no" name="person[has_user_account]" id="person_has_user_account_no" />',
+      #   'No',
+      #   '</label>',
+      #   '</fieldset>'
+      # ]
+
+    context 'the resource is invalid' do
+      let(:resource) { Person.new.tap { |p| p.valid? } }
+      let(:output) { builder.radio_button_fieldset :gender }
+
+      it 'outputs error messages' do
+        expect(pretty_output).to have_tag('div.form-group.error > fieldset') do |div|
+          expect(div).to have_tag('legend') do |legend|
+            expect(legend).to have_tag('span.form-label-bold', 'Gender')
+            expect(legend).to have_tag('span.error-message', 'Gender is required')
+          end
+        end
+      end
+      #   expect_equal output, [
+      #                  '<div class="form-group error">',
+      #                  '<fieldset>',
+      #                  '<legend class="heading-medium">',
+      #                  '<span class="form-label-bold">',
+      #                  'Which email address should we use??',
+      #                  '</span>',
+      #                  '<span class="error-message">',
+      #                  'Please select an option.',
+      #                  '</span>',
+      #                  '</legend>',
+      #                  '<label class="block-label" for="person_has_user_account_no">',
+      #                  '<input type="radio" value="no" name="person[has_user_account]" id="person_has_user_account_no" />',
+      #                  'No',
+      #                  '</label>',
+      #                  '</fieldset>',
+      #                  '</div>'
+      #                ]
+      # end
+    end
   end
 
   describe '#check_box_fieldset' do
@@ -293,31 +402,34 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
         f.check_box_fieldset :waste_transport, [:animal_carcasses, :mines_quarries, :farm_agricultural]
       end
 
-      expect_equal output, [
-        '<fieldset>',
-        '<legend class="heading-medium">',
-        'Which types of waste do you transport regularly?',
-        '<span class="form-hint">',
-        'Select all that apply',
-        '</span>',
-        '</legend>',
-        '<label class="block-label" for="person_waste_transport_attributes_animal_carcasses">',
-        '<input name="person[waste_transport_attributes][animal_carcasses]" type="hidden" value="0" />',
-        '<input type="checkbox" value="1" name="person[waste_transport_attributes][animal_carcasses]" id="person_waste_transport_attributes_animal_carcasses" />',
-        'Waste from animal carcasses',
-        '</label>',
-        '<label class="block-label" for="person_waste_transport_attributes_mines_quarries">',
-        '<input name="person[waste_transport_attributes][mines_quarries]" type="hidden" value="0" />',
-        '<input type="checkbox" value="1" name="person[waste_transport_attributes][mines_quarries]" id="person_waste_transport_attributes_mines_quarries" />',
-        'Waste from mines or quarries',
-        '</label>',
-        '<label class="block-label" for="person_waste_transport_attributes_farm_agricultural">',
-        '<input name="person[waste_transport_attributes][farm_agricultural]" type="hidden" value="0" />',
-        '<input type="checkbox" value="1" name="person[waste_transport_attributes][farm_agricultural]" id="person_waste_transport_attributes_farm_agricultural" />',
-        'Farm or agricultural waste',
-        '</label>',
-        '</fieldset>'
-      ]
+      expect(output).to have_tag('div.form-group > fieldset') do
+      end
+
+      # expect_equal output, [
+      #   '<fieldset>',
+      #   '<legend class="heading-medium">',
+      #   'Which types of waste do you transport regularly?',
+      #   '<span class="form-hint">',
+      #   'Select all that apply',
+      #   '</span>',
+      #   '</legend>',
+      #   '<label class="block-label" for="person_waste_transport_attributes_animal_carcasses">',
+      #   '<input name="person[waste_transport_attributes][animal_carcasses]" type="hidden" value="0" />',
+      #   '<input type="checkbox" value="1" name="person[waste_transport_attributes][animal_carcasses]" id="person_waste_transport_attributes_animal_carcasses" />',
+      #   'Waste from animal carcasses',
+      #   '</label>',
+      #   '<label class="block-label" for="person_waste_transport_attributes_mines_quarries">',
+      #   '<input name="person[waste_transport_attributes][mines_quarries]" type="hidden" value="0" />',
+      #   '<input type="checkbox" value="1" name="person[waste_transport_attributes][mines_quarries]" id="person_waste_transport_attributes_mines_quarries" />',
+      #   'Waste from mines or quarries',
+      #   '</label>',
+      #   '<label class="block-label" for="person_waste_transport_attributes_farm_agricultural">',
+      #   '<input name="person[waste_transport_attributes][farm_agricultural]" type="hidden" value="0" />',
+      #   '<input type="checkbox" value="1" name="person[waste_transport_attributes][farm_agricultural]" id="person_waste_transport_attributes_farm_agricultural" />',
+      #   'Farm or agricultural waste',
+      #   '</label>',
+      #   '</fieldset>'
+      # ]
     end
 
   end

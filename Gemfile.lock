@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ministryofjustice/rspec-html-matchers.git
-  revision: ac9a2b12de6d0454863f8256e4674e2c73a32d33
+  revision: e032f4b6736e86fc60ee391278689ab95f3cc455
   specs:
     rspec-html-matchers (0.8.0)
       nokogiri (~> 1)

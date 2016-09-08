@@ -41,20 +41,28 @@ module GovukElementsFormBuilder
     end
 
     def radio_button_fieldset attribute, options={}
-      content_tag :fieldset, fieldset_options(options) do
-        safe_join([
-          fieldset_legend(attribute),
-          radio_inputs(attribute, options)
-        ], "\n")
+      content_tag :div,
+                  class: form_group_classes(attribute),
+                  id: form_group_id(attribute) do
+        content_tag :fieldset, fieldset_options(attribute, options) do
+          safe_join([
+                      fieldset_legend(attribute),
+                      radio_inputs(attribute, options)
+                    ], "\n")
+        end
       end
     end
 
-    def check_box_fieldset legend_key, attributes
-      content_tag :fieldset, fieldset_options(options) do
-        safe_join([
-          fieldset_legend(legend_key),
-          check_box_inputs(attributes)
-        ], "\n")
+    def check_box_fieldset legend_key, attributes, options={}
+      content_tag :div,
+                  class: form_group_classes(attributes),
+                  id: form_group_id(attributes) do
+        content_tag :fieldset, fieldset_options(attributes, options) do
+          safe_join([
+                      fieldset_legend(legend_key),
+                      check_box_inputs(attributes)
+                    ], "\n")
+        end
       end
     end
 
@@ -107,12 +115,31 @@ module GovukElementsFormBuilder
     end
 
     def fieldset_legend attribute
-      legend = content_tag(:legend, fieldset_text(attribute), class: 'heading-medium')
+      legend = content_tag(:legend, class: 'heading-medium') do
+        tags = [content_tag(
+                  :span,
+                  fieldset_text(attribute),
+                  class: 'form-label-bold'
+                )]
+
+        if error_for? attribute
+          tags << content_tag(
+            :span,
+            error_full_message_for(attribute),
+            class: 'error-message'
+          )
+        end
+
+        hint = hint_text attribute
+        tags << content_tag(:span, hint, class: 'form-hint') if hint
+
+        safe_join tags
+      end
       add_hint :legend, legend, attribute
       legend.html_safe
     end
 
-    def fieldset_options options
+    def fieldset_options attributes, options
       fieldset_options = {}
       fieldset_options[:class] = 'inline' if options[:inline] == true
       fieldset_options
@@ -126,6 +153,8 @@ module GovukElementsFormBuilder
         add_error_to_input! html_tag, 'input'
       when /^<textarea/
         add_error_to_input! html_tag, 'textarea'
+      # when /^<fieldset/
+      #   add_error_to_input! html_tag
       else
         html_tag
       end
@@ -143,25 +172,34 @@ module GovukElementsFormBuilder
       field = html_tag[/for="([^"]+)"/, 1]
       object_attribute = object_attribute_for field
       message = error_full_message_for object_attribute
-      html_tag.sub!('</label',
-        %'<span class="error-message" id="error_message_#{field}">#{message}</span></label')
+      if message
+        html_tag.sub(
+          '</label',
+          %Q{<span class="error-message" id="error_message_#{field}">#{message}</span></label}
+        ).html_safe # sub() returns a String, not a SafeBuffer
+      else
+        html_tag
+      end
     end
 
     def add_error_to_input! html_tag, element
       field = html_tag[/id="([^"]+)"/, 1]
-      html_tag.sub!(element, %'#{element} aria-describedby="error_message_#{field}"')
+      html_tag.sub(
+        element,
+        %Q{#{element} aria-describedby="error_message_#{field}"}
+      ).html_safe # sub() returns a String, not a SafeBuffer
     end
 
-    def form_group_classes attribute
+    def form_group_classes attributes
+      attributes = [attributes] if !attributes.respond_to? :count
       classes = 'form-group'
-      classes += ' error' if error_for? attribute
+      classes += ' error' if attributes.find { |a| error_for? a }
       classes
     end
 
     def error_full_message_for attribute
       message = errors.full_messages_for(attribute).first
-      message.sub! default_label(attribute), localized_label(attribute)
-      message
+      message&.sub default_label(attribute), localized_label(attribute)
     end
 
     def error_for? attribute

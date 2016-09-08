@@ -13,7 +13,7 @@ class Person
   attr_accessor :waste_transport
   attr_accessor :gender
 
-  validates_presence_of :name
+  validates_presence_of :name, :gender
 
   def address_attributes=(attributes)
     @address = Address.new(attributes)
