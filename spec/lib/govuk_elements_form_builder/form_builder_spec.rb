@@ -32,58 +32,42 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
   shared_examples_for 'input field' do |method, type|
 
     def size(method, size)
-      method == :text_area ? '' : %'size="#{size}" '
+      (size.nil? || method == :text_area) ? '' : %'size="#{size}" '
+    end
+
+    def expected_name_input_html method, type, classes=nil, size=nil
+      [
+        '<div class="form-group">',
+        '<label class="form-label" for="person_name">',
+        'Full name',
+        '</label>',
+        %'<#{element_for(method)} #{size(method, size)}class="form-control#{classes}" #{type_for(method, type)}name="person[name]" id="person_name" />',
+        '</div>'
+      ]
     end
 
     it 'outputs label and input wrapped in div' do
       output = builder.send method, :name
 
-      expect_equal output, [
-        '<div class="form-group">',
-        '<label class="form-label" for="person_name">',
-        'Full name',
-        '</label>',
-        %'<#{element_for(method)} class="form-control" #{type_for(method, type)}name="person[name]" id="person_name" />',
-        '</div>'
-      ]
+      expect_equal output, expected_name_input_html(method, type)
     end
 
     it 'adds custom class to input when passed class: "custom-class"' do
       output = builder.send method, :name, class: 'custom-class'
 
-      expect_equal output, [
-        '<div class="form-group">',
-        '<label class="form-label" for="person_name">',
-        'Full name',
-        '</label>',
-        %'<#{element_for(method)} class="form-control custom-class" #{type_for(method, type)}name="person[name]" id="person_name" />',
-        '</div>'
-      ]
+      expect_equal output, expected_name_input_html(method, type, ' custom-class')
     end
 
     it 'adds custom classes to input when passed class: ["custom-class", "another-class"]' do
       output = builder.send method, :name, class: ['custom-class', 'another-class']
 
-      expect_equal output, [
-        '<div class="form-group">',
-        '<label class="form-label" for="person_name">',
-        'Full name',
-        '</label>',
-        %'<#{element_for(method)} class="form-control custom-class another-class" #{type_for(method, type)}name="person[name]" id="person_name" />',
-        '</div>'
-      ]
+      expect_equal output, expected_name_input_html(method, type, ' custom-class another-class')
     end
 
     it 'passes options passed to text_field onto super text_field implementation' do
       output = builder.send method, :name, size: 100
-      expect_equal output, [
-        '<div class="form-group">',
-        '<label class="form-label" for="person_name">',
-        'Full name',
-        '</label>',
-        %'<#{element_for(method)} #{size(method, 100)}class="form-control" #{type_for(method, type)}name="person[name]" id="person_name" />',
-        '</div>'
-      ]
+
+      expect_equal output, expected_name_input_html(method, type, nil, 100)
     end
 
     context 'when hint text provided' do
