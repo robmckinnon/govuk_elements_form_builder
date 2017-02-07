@@ -1,5 +1,6 @@
 Build Status: [![Build Status](https://travis-ci.org/ministryofjustice/govuk_elements_form_builder.svg)](https://travis-ci.org/ministryofjustice/govuk_elements_form_builder)
 
+Code Climate: <a href="https://codeclimate.com/github/ministryofjustice/govuk_elements_form_builder"><img src="https://codeclimate.com/github/ministryofjustice/govuk_elements_form_builder/badges/gpa.svg" /></a> <a href="https://codeclimate.com/github/ministryofjustice/govuk_elements_form_builder/coverage"><img src="https://codeclimate.com/github/ministryofjustice/govuk_elements_form_builder/badges/coverage.svg" /></a>
 # GovukElementsFormBuilder
 
 To build GOV.UK based services you need to use [govuk_elements](https://github.com/alphagov/govuk_elements) for presentation and [govuk_frontend_toolkit](https://github.com/alphagov/govuk_frontend_toolkit) for the interaction aspects.
