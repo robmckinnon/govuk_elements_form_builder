@@ -94,7 +94,7 @@ module GovukElementsFormBuilder
 
     def check_box_inputs attributes
       attributes.map do |attribute|
-        label(attribute, class: 'block-label') do |tag|
+        label(attribute, class: 'block-label selection-button-checkbox') do |tag|
           input = check_box(attribute)
           input + localized_label("#{attribute}")
         end
@@ -104,7 +104,7 @@ module GovukElementsFormBuilder
     def radio_inputs attribute, options
       choices = options[:choices] || [ :yes, :no ]
       choices.map do |choice|
-        label(attribute, class: 'block-label', value: choice) do |tag|
+        label(attribute, class: 'block-label selection-button-radio', value: choice) do |tag|
           input = radio_button(attribute, choice)
           input + localized_label("#{attribute}.#{choice}")
         end
