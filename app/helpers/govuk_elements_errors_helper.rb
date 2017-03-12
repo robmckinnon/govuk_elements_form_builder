@@ -22,9 +22,12 @@ module GovukElementsErrorsHelper
     attributes(object).any? { |child| errors_exist?(child) }
   end
 
-  def self.attributes object
+  def self.attributes object, parent_object=nil
+    return [] if object == parent_object
+    parent_object ||= object
+
     child_objects = attribute_objects object
-    nested_child_objects = child_objects.map { |o| attributes(o) }
+    nested_child_objects = child_objects.map { |o| attributes(o, parent_object) }
     (child_objects + nested_child_objects).flatten
   end
 
