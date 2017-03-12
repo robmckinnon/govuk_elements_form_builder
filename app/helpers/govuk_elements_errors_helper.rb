@@ -51,11 +51,22 @@ module GovukElementsErrorsHelper
 
   def self.instance_variable object, var
     field = var.to_s.sub('@','').to_sym
-    object.send(field) if object.respond_to?(field)
+    if object.respond_to?(field)
+      child = object.send(field)
+      if respond_to_errors?(child)
+        child
+      else
+        nil
+      end
+    end
+  end
+
+  def self.respond_to_errors? object
+    object && object.respond_to?(:errors)
   end
 
   def self.errors_present? object
-    object && object.respond_to?(:errors) && object.errors.present?
+    respond_to_errors?(object) && object.errors.present?
   end
 
   def self.children_with_errors object
