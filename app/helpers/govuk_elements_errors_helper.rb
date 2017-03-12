@@ -35,10 +35,13 @@ module GovukElementsErrorsHelper
       compact
   end
 
-  def self.child_to_parent object, parents={}
+  def self.child_to_parent object, parents={}, parent_object=nil
+    return parents if object == parent_object
+    parent_object ||= object
+
     attribute_objects(object).each do |child|
       parents[child] = object
-      child_to_parent child, parents
+      child_to_parent child, parents, parent_object
     end
     parents
   end
