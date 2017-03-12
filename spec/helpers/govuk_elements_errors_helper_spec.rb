@@ -181,9 +181,8 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
     end
 
     it 'handles objects which contain objects with references to themselves' do
-      puts pretty_output
+      expect(pretty_output).to include('<a href="#error_case_name">Name is required</a>')
     end
   end
-
 
 end
