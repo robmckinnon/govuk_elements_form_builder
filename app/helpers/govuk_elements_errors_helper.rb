@@ -28,7 +28,7 @@ module GovukElementsErrorsHelper
 
     child_objects = attribute_objects object
     nested_child_objects = child_objects.map { |o| attributes(o, parent_object) }
-    (child_objects + nested_child_objects).flatten
+    (child_objects + nested_child_objects).flatten - [object]
   end
 
   def self.attribute_objects object
