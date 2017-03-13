@@ -38,22 +38,34 @@ module GovukElementsErrorsHelper
       compact
   end
 
-  def self.child_to_parent object, parents={}, parent_object=nil
-    return parents if object == parent_object
+  def self.array_to_parent list, object, child_to_parents={}, parent_object
+    list.each do |child|
+      child_to_parents[child] = object
+      child_to_parent child, child_to_parents, parent_object
+    end
+  end
+
+  def self.child_to_parent object, child_to_parents={}, parent_object=nil
+    return child_to_parents if object == parent_object
     parent_object ||= object
 
     attribute_objects(object).each do |child|
-      parents[child] = object
-      child_to_parent child, parents, parent_object
+      if child.is_a?(Array)
+        array_to_parent(child, object, child_to_parents, parent_object)
+      else
+        child_to_parents[child] = object
+        child_to_parent child, child_to_parents, parent_object
+      end
     end
-    parents
+
+    child_to_parents
   end
 
   def self.instance_variable object, var
     field = var.to_s.sub('@','').to_sym
     if object.respond_to?(field)
       child = object.send(field)
-      if respond_to_errors?(child)
+      if respond_to_errors?(child) || child.is_a?(Array)
         child
       else
         nil
