@@ -172,16 +172,27 @@ RSpec.describe GovukElementsErrorsHelper, type: :helper do
     end
   end
 
-  context 'recursion' do
+  context 'resource contains object with circular reference back to resource' do
     let(:resource) do
-      kase = Case.new
+      kase = Case.new()
       kase.state_machine = StateMachine.new(object: kase)
       kase.valid?
       kase
     end
 
-    it 'handles objects which contain objects with references to themselves' do
+    it 'produces error message, and does not get stuck in infinite loop' do
       expect(pretty_output).to include('<a href="#error_case_name">Name is required</a>')
+    end
+  end
+
+  context 'resource contains array of resources with errors' do
+    let(:resource) do
+      Case.new(subcases: [Case.new, Case.new]).tap { |c| c.valid? }
+    end
+
+    it 'creates separate error messages for resources in array' do
+      expect(pretty_output).to include('<a href="#error_case_name">Name is required</a>')
+      expect(pretty_output).to include('<a href="#error_case_case_attributes_name">Name is required</a>')
     end
   end
 
