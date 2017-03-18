@@ -258,7 +258,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       expect_equal output, [
         '<div class="form-group">',
         '<fieldset>',
-        '<legend>',
+        '<legend class="heading-medium">',
         '<span class="form-label-bold">',
         'Where do you live?',
         '</span>',
@@ -288,7 +288,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       expect_equal output, [
         '<div class="form-group">',
         '<fieldset class="inline">',
-        '<legend>',
+        '<legend class="heading-medium">',
         '<span class="form-label-bold">',
         'Do you already have a personal user account?',
         '</span>',
@@ -315,7 +315,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
         expect_equal output, [
                        '<div class="form-group error" id="error_person_gender">',
                        '<fieldset>',
-                       '<legend>',
+                       '<legend class="heading-medium">',
                        '<span class="form-label-bold">',
                        'Gender',
                        '</span>',
@@ -348,7 +348,7 @@ RSpec.describe GovukElementsFormBuilder::FormBuilder do
       expect_equal output, [
         '<div class="form-group">',
         '<fieldset>',
-        '<legend>',
+        '<legend class="heading-medium">',
         '<span class="form-label-bold">',
         'Which types of waste do you transport regularly?',
         '</span>',
